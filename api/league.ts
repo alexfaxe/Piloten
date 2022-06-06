@@ -35,7 +35,6 @@ interface ILeague {
     inactive: boolean,
     freshBlood: boolean,
     hotStreak: boolean
-
 }
 
 export async function summonerByName(name: string): Promise<ISummoner> {
@@ -80,8 +79,22 @@ export async function getSoloqRank(id: string) {
     const summonersRift = summonerData.find(q => {
         return q.queueType === "RANKED_SOLO_5x5";
     })
-    if (!summonersRift) {
-        return "Unranked";
+    const { tier, rank, leaguePoints } = summonersRift || {};
+
+    return !summonersRift
+        ? "Unranked"
+        :  `${tier} ${rank} ${leaguePoints} LP`
+}
+
+export async function getWinrate(id: string): Promise<number> {
+    const summonerData = await leagueById(id);
+    const summonersRift = summonerData.find(q => {
+        return q.queueType === "RANKED_SOLO_5x5";
+    })
+    const { wins, losses } = summonersRift || {};
+    if (!wins || !losses) {
+        return 0;
     }
-    return summonersRift?.tier + " " + summonersRift?.rank + " " + summonersRift?.leaguePoints + " LP"
+    const totalGames = wins + losses;
+    return wins / totalGames * 100;
 }
