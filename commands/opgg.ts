@@ -33,13 +33,16 @@ export default {
             return message.reply("Name is outside of Riot Games limitations.");
         }
 
-        summoner = await summonerByName(name);
-        highestMastery = await getHighestMasteryChamp(summoner.id);
-        winrate = await getWinrate(summoner.id);
-
-        if (!summoner || !highestMastery) {
-            console.error("Summoner or highestMastery wasn't fetched");
-            return message.reply("Summoner or highestMastery wasn't fetched")
+        try {
+            summoner = await summonerByName(name);
+            highestMastery = await getHighestMasteryChamp(summoner.id);
+            winrate = await getWinrate(summoner.id);
+        } catch (e) {
+            if (axios.isAxiosError(e)) {
+                return message.reply("Username not found.");
+            }
+            console.error(e);
+            return message.reply("Something went wrong.")
         }
 
         let opggURL = encodeURI("https://euw.op.gg/summoners/euw/" + summoner.name);

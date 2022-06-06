@@ -37,8 +37,10 @@ interface ILeague {
     hotStreak: boolean
 }
 
+const RIOT_BASE_URL = "https://euw1.api.riotgames.com/lol/";
+
 export async function summonerByName(name: string): Promise<ISummoner> {
-    const summonerByNameURL = "https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/";
+    const summonerByNameURL = `${RIOT_BASE_URL}summoner/v4/summoners/by-name/`;
     const goodURL = encodeURI(summonerByNameURL + name);
 
     return await axios.get<ISummoner>(goodURL)
@@ -48,7 +50,7 @@ export async function summonerByName(name: string): Promise<ISummoner> {
 }
 
 export async function leagueById(id: string): Promise<ILeague[]> {
-    const leagueByURL = "https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/";
+    const leagueByURL = `${RIOT_BASE_URL}league/v4/entries/by-summoner/`;
     const goodURL = encodeURI(leagueByURL + id);
 
     return await axios.get(goodURL)
@@ -58,7 +60,7 @@ export async function leagueById(id: string): Promise<ILeague[]> {
 }
 
 export async function masteryById(id: string): Promise<IMastery[]> {
-    const masteryByURL = "https://euw1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/";
+    const masteryByURL = `${RIOT_BASE_URL}champion-mastery/v4/champion-masteries/by-summoner/`;
     const goodURL = encodeURI(masteryByURL + id);
 
     return await axios.get(goodURL)
