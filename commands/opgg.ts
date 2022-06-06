@@ -1,7 +1,7 @@
 import {Message, MessageEmbed} from "discord.js";
 import axios from "axios";
 import {getChampionName} from "twisted/dist/constants";
-import {summonerByName, leagueById, getHighestMasteryChamp, getSoloqRank } from "../api/league";
+import {summonerByName, getHighestMasteryChamp, getSoloqRank } from "../api/league";
 
 const profilePictureURL = "https://raw.communitydragon.org/pbe/plugins/rcp-be-lol-game-data/global/default/v1/profile-icons/";
 
@@ -23,7 +23,6 @@ export default {
         let name = fixName(args);
 
         let summoner;
-        let rank;
         let highestMastery;
 
         console.log("Name: " + name);
@@ -33,19 +32,12 @@ export default {
             return message.reply("Name is outside of Riot Games limitations.");
         }
 
-        try {
-            summoner = await summonerByName(name);
-            rank = await leagueById(summoner.id);
-            highestMastery = await getHighestMasteryChamp(summoner.id);
-            await getSoloqRank(summoner.id);
-        } catch (e) {
-            if (axios.isAxiosError(e)) {
-                console.error("Axios error: \n" + e);
-                return message.reply(e.toString());
-            } else {
-                console.error("Non-axios error: \n" + e);
-                return message.reply("Could not fetch user.");
-            }
+        summoner = await summonerByName(name);
+        highestMastery = await getHighestMasteryChamp(summoner.id);
+
+        if (!summoner || !highestMastery) {
+            console.error("Summoner or highestMastery wasn't fetched");
+            return message.reply("Summoner or highestMastery wasn't fetched")
         }
 
         let opggURL = encodeURI("https://euw.op.gg/summoners/euw/" + summoner.name);
@@ -58,7 +50,7 @@ export default {
             .setThumbnail(profilePictureURL + summoner.profileIconId + ".jpg")
             .addField("Level", summoner.summonerLevel.toString())
             .addField("Highest mastery", getChampionName(highestMastery[0].championId))
-            .addField("Rank", rank[0].tier + " " + rank[0].rank + " " + rank[0].leaguePoints + " LP")
+            .addField("Rank", await getSoloqRank(summoner.id))
             .setTimestamp()
             .setFooter( { text: 'gaming lookup v24', iconURL: 'https://rmkcdn.successfactors.com/c45b068b/7279a8a8-f3a4-44ff-8bab-a.jpg' });
 

@@ -69,16 +69,19 @@ export async function masteryById(id: string): Promise<IMastery[]> {
 }
 
 export async function getHighestMasteryChamp(id: string) {
-    let mastery = await masteryById(id);
-    let highestPoints = Math.max(...(mastery.map(champ => champ.championPoints)))
+    const mastery = await masteryById(id);
+    const highestPoints = Math.max(...(mastery.map(champ => champ.championPoints)))
 
     return mastery.filter(champ => champ.championPoints === highestPoints);
 }
 
 export async function getSoloqRank(id: string) {
-    let summonerData = await leagueById(id);
-    let summonersRift = summonerData.find(q => {
+    const summonerData = await leagueById(id);
+    const summonersRift = summonerData.find(q => {
         return q.queueType === "RANKED_SOLO_5x5";
     })
+    if (!summonersRift) {
+        return "Unranked";
+    }
     return summonersRift?.tier + " " + summonersRift?.rank + " " + summonersRift?.leaguePoints + " LP"
 }
